@@ -1,48 +1,36 @@
+import re
 
-substrings = [ "ab", "cd", "pq", "xy"]
-vowels = "aeiou"
-nice_sum = 0
+lights = [[0]*1000 for x in range(1000)]
+coordinate_regex = r"\d+,\d+"
 
-def substring_test(string):
-  for substring in substrings:
-    if substring in string:
-      return False
-  return True
-
-def letter_twice_test(string):
-  for i in range(0, len(string)-1):
-    char = string[i]
-    next_char = string[i+1]
-    if char == next_char:
-      return True
-  return False
-
-def three_vowels_test(string):
-  vowel_sum = 0
-  for c in string:
-    if c in vowels:
-      vowel_sum += 1
-  return vowel_sum >= 3
-
-def pair_repeat(string):
-  for i in range(0, len(string)-1):
-    substring = string[i] + string[i+1]
-    if substring in string[i+2:]:
-      return True
-  return False
-
-def letter_repeat(string):
-  for i in range(0, len(string)-2):
-    c = string[i]
-    x = string[i+2]
-    if c == x:
-      return True
-  return False
+def assign_coordinates(matches):
+  matches = list(map(lambda x: x.split(","), matches))
+  return (int(matches[0][0]), int(matches[0][1]), int(matches[1][0]), int(matches[1][1]))
 
 with open('input.txt', 'r') as file:
   for string in file:
-    if pair_repeat(string) and letter_repeat(string):
-      nice_sum += 1
-      print(string)
+    matches = re.findall(coordinate_regex, string)
+    x1, y1, x2,y2 = assign_coordinates(matches)
 
-print(nice_sum)
+    if "toggle" in string:
+      for i in range(x1, x2+1):
+        for j in range(y1, y2+1):
+          lights[i][j] += 2
+
+    elif "turn on" in string:
+      for i in range(x1, x2+1):
+        for j in range(y1, y2+1):
+          lights[i][j] += 1
+
+    elif "turn off" in string:
+      for i in range(x1, x2+1):
+        for j in range(y1, y2+1):
+          if lights[i][j] > 0:
+            lights[i][j] -= 1
+
+light_sum = 0
+for row in lights:
+  for light in row:
+    light_sum += light
+
+print(light_sum)
